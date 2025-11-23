@@ -1,25 +1,33 @@
 # Step Functions Generator
 
-A visual builder for AWS Step Functions (ASL) using React, Zustand, and Monaco Editor.
+A visual builder for AWS Step Functions (ASL).
 
 ## Features
 
-- **Drag-and-Drop Interface**: Easily add states to your workflow.
-- **Visualizer**: Real-time visualization of the Step Function graph.
+- **Drag-and-Drop Interface**: Easily add states (Task, Choice, Wait, Parallel, etc.) to your workflow.
+- **Real-time Visualization**: Powered by `asl-viewer`, rendering your ASL graph instantly.
 - **JSON Editor**: Monaco Editor with syntax highlighting for direct ASL editing.
 - **Two-way Synchronization**: Changes in the visual editor update the JSON, and vice-versa.
-- **Export**: Download your workflow as a `.asl.json` file.
+- **Customizable View**:
+    - Toggle between **Dark** and **Light** themes for the graph.
+    - Switch layout direction (Top-to-Bottom or Left-to-Right).
+    - Enable/Disable Minimap and Controls.
+- **Export & Share**:
+    - Download your workflow as a `.asl.json` file.
+    - Copy the ASL JSON to clipboard with one click.
+- **Modern UI**: Built with Tailwind CSS v4, featuring glassmorphism and a sleek dark mode interface.
 
 ## Tech Stack
 
-- React
-- TypeScript
-- Vite
-- Zustand (State Management)
-- Monaco Editor
-- React DnD
-- Tailwind CSS
-- asl-viewer (Visualization)
+- **React 19**
+- **TypeScript**
+- **Vite**
+- **Zustand** (State Management)
+- **Monaco Editor** (Code Editor)
+- **React DnD** (Drag and Drop)
+- **Tailwind CSS v4** (Styling)
+- **asl-viewer** (Visualization Library)
+- **Lucide React** (Icons)
 
 ## Getting Started
 
@@ -37,9 +45,10 @@ A visual builder for AWS Step Functions (ASL) using React, Zustand, and Monaco E
 
 ## Usage
 
-1.  Drag states from the left sidebar onto the visualizer area (center).
-2.  Edit the JSON definition on the right to fine-tune properties.
-3.  Click "Export JSON" in the header to save your workflow.
+1.  **Drag & Drop**: Drag states from the left "State Library" sidebar onto the visualizer area.
+2.  **Edit JSON**: Use the right-hand editor to fine-tune properties (Resource ARNs, Choice rules, etc.).
+3.  **Customize View**: Click the **Settings** (gear icon) in the header to adjust the graph layout and theme.
+4.  **Export**: Click "Export JSON" to save your file, or the **Share** icon to copy the code.
 
 ## License
 
