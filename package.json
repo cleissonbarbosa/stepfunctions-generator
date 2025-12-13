@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "yarn dev",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
@@ -13,7 +14,9 @@
     "@monaco-editor/react": "^4.7.0",
     "asl-viewer": "^1.1.0",
     "clsx": "^2.1.1",
+    "jsonc-parser": "^3.3.1",
     "lucide-react": "^0.554.0",
+    "monaco-editor": "^0.55.1",
     "react": "^19.2.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",

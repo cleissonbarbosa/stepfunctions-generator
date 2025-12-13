@@ -4,11 +4,15 @@ import { useStore } from "../store/useStore";
 import { useDrop } from "react-dnd";
 
 export const Visualizer = () => {
-  const { aslDefinition, addState, viewSettings } = useStore();
+  const { aslDefinition, addState, viewSettings, parseError, validation } = useStore();
+
+  const errorCount = validation.issues.filter((i) => i.severity === "error").length;
+  const warningCount = validation.issues.filter((i) => i.severity === "warning").length;
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "STATE",
     drop: (item: { type: string }) => {
+      if (parseError) return;
       const stateName = `${item.type}-${Date.now()}`;
       addState(stateName, item.type);
     },
@@ -34,10 +38,21 @@ export const Visualizer = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="section-title">Workflow Preview</span>
-            {isOver && (
+            {parseError ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-300 border border-rose-500/40">
+                Fix JSON to enable drag & drop
+              </span>
+            ) : isOver ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-300 border border-emerald-500/40">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                 Drop to add state
+              </span>
+            ) : null}
+
+            {!parseError && (errorCount > 0 || warningCount > 0) && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-300 border border-amber-500/40">
+                {errorCount > 0 ? `${errorCount} error(s)` : "0 errors"}
+                {warningCount > 0 ? ` • ${warningCount} warning(s)` : null}
               </span>
             )}
           </div>

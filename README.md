@@ -7,6 +7,10 @@ A visual builder for AWS Step Functions (ASL).
 - **Drag-and-Drop Interface**: Easily add states (Task, Choice, Wait, Parallel, etc.) to your workflow.
 - **Real-time Visualization**: Powered by `asl-viewer`, rendering your ASL graph instantly.
 - **JSON Editor**: Monaco Editor with syntax highlighting for direct ASL editing.
+- **ASL Semantic Validation**: Detects broken references, missing transitions, unreachable states, and more.
+- **Undo/Redo**: Time-travel editing for committed (valid) workflows.
+- **Autosave (Local)**: Persists your workflow and view settings in the browser.
+- **Inline Errors**: Validation issues are highlighted directly in the Monaco editor.
 - **Two-way Synchronization**: Changes in the visual editor update the JSON, and vice-versa.
 - **Customizable View**:
     - Toggle between **Dark** and **Light** themes for the graph.
@@ -14,6 +18,7 @@ A visual builder for AWS Step Functions (ASL).
     - Enable/Disable Minimap and Controls.
 - **Export & Share**:
     - Download your workflow as a `.asl.json` file.
+    - Import a workflow from a `.json` file.
     - Copy the ASL JSON to clipboard with one click.
 - **Modern UI**: Built with Tailwind CSS v4, featuring glassmorphism and a sleek dark mode interface.
 

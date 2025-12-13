@@ -1,11 +1,21 @@
-import { useState } from "react";
-import { Download, Settings, Bolt, Copy } from "lucide-react";
+import { useEffect, useRef, useState, type ChangeEventHandler } from "react";
+import { Download, Settings, Bolt, Copy, Upload, Undo2, Redo2, RotateCcw } from "lucide-react";
 import { useStore } from "../store/useStore";
 import { SettingsModal } from "./SettingsModal";
 
 export const Header = () => {
-  const { aslDefinition } = useStore();
+  const {
+    aslDefinition,
+    importAslText,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    parseError,
+    resetToInitial,
+  } = useStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleExport = () => {
     const dataStr =
@@ -23,6 +33,42 @@ export const Header = () => {
     navigator.clipboard.writeText(JSON.stringify(aslDefinition, null, 2));
     alert("Workflow JSON copied to clipboard!");
   };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImportFile: ChangeEventHandler<HTMLInputElement> = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    importAslText(text);
+    e.target.value = "";
+  };
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const isMac = navigator.platform.toLowerCase().includes("mac");
+      const modKey = isMac ? event.metaKey : event.ctrlKey;
+      if (!modKey) return;
+
+      const target = event.target as HTMLElement | null;
+      if (target?.closest(".monaco-editor")) return;
+
+      const key = event.key.toLowerCase();
+      if (key === "z" && !event.shiftKey) {
+        event.preventDefault();
+        undo();
+      }
+      if (key === "y" || (key === "z" && event.shiftKey)) {
+        event.preventDefault();
+        redo();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [redo, undo]);
 
   const handleSettings = () => {
     setIsSettingsOpen(true);
@@ -57,6 +103,61 @@ export const Header = () => {
             </span>
             Live Graph Preview
           </span>
+
+          {parseError && (
+            <span className="hidden md:inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2.5 py-1 text-[11px] font-medium text-rose-300 border border-rose-500/30">
+              Invalid JSON
+            </span>
+          )}
+
+          <button
+            onClick={undo}
+            className="btn-ghost"
+            style={{ cursor: canUndo ? "pointer" : "not-allowed", opacity: canUndo ? 1 : 0.45 }}
+            title="Undo (Ctrl/Cmd+Z)"
+            disabled={!canUndo}
+          >
+            <Undo2 size={18} />
+          </button>
+          <button
+            onClick={redo}
+            className="btn-ghost"
+            style={{ cursor: canRedo ? "pointer" : "not-allowed", opacity: canRedo ? 1 : 0.45 }}
+            title="Redo (Ctrl+Y / Shift+Ctrl/Cmd+Z)"
+            disabled={!canRedo}
+          >
+            <Redo2 size={18} />
+          </button>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={handleImportFile}
+          />
+          <button
+            onClick={handleImportClick}
+            className="btn-ghost"
+            style={{ cursor: "pointer" }}
+            title="Import JSON"
+          >
+            <Upload size={18} />
+          </button>
+
+          <button
+            onClick={() => {
+              const ok = window.confirm(
+                "Reset to the initial example? This will overwrite the current workflow.",
+              );
+              if (ok) resetToInitial();
+            }}
+            className="btn-ghost"
+            style={{ cursor: "pointer" }}
+            title="Reset workflow"
+          >
+            <RotateCcw size={18} />
+          </button>
 
           <button
             onClick={handleExport}
