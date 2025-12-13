@@ -30,7 +30,11 @@ const offsetToPosition = (text: string, offset: number) => {
   return { lineNumber: line, column };
 };
 
-const rangeFromOffsets = (text: string, startOffset: number, endOffset: number): Range => {
+const rangeFromOffsets = (
+  text: string,
+  startOffset: number,
+  endOffset: number
+): Range => {
   const start = offsetToPosition(text, Math.max(0, startOffset));
   const end = offsetToPosition(text, Math.max(startOffset, endOffset));
   return {
@@ -41,13 +45,19 @@ const rangeFromOffsets = (text: string, startOffset: number, endOffset: number):
   };
 };
 
-const severityToMonaco = (monaco: Monaco, severity: ValidationIssue["severity"]) => {
+const severityToMonaco = (
+  monaco: Monaco,
+  severity: ValidationIssue["severity"]
+) => {
   return severity === "error"
     ? monaco.MarkerSeverity.Error
     : monaco.MarkerSeverity.Warning;
 };
 
-const guessRangeForStateName = (text: string, stateName: string): Range | null => {
+const guessRangeForStateName = (
+  text: string,
+  stateName: string
+): Range | null => {
   const needle = `"${stateName}"`;
   const idx = text.indexOf(needle);
   if (idx < 0) return null;

@@ -4,10 +4,15 @@ import { useStore } from "../store/useStore";
 import { useDrop } from "react-dnd";
 
 export const Visualizer = () => {
-  const { aslDefinition, addState, viewSettings, parseError, validation } = useStore();
+  const { aslDefinition, addState, viewSettings, parseError, validation } =
+    useStore();
 
-  const errorCount = validation.issues.filter((i) => i.severity === "error").length;
-  const warningCount = validation.issues.filter((i) => i.severity === "warning").length;
+  const errorCount = validation.issues.filter(
+    (i) => i.severity === "error"
+  ).length;
+  const warningCount = validation.issues.filter(
+    (i) => i.severity === "warning"
+  ).length;
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "STATE",
@@ -58,7 +63,14 @@ export const Visualizer = () => {
           </div>
           <span className="text-[11px] text-gray-400 hidden md:inline">
             Author{" "}
-            <span className="font-medium text-sky-300">keumasterpiece</span>
+            <span
+              className="font-medium text-sky-300 cursor-pointer"
+              onClick={() =>
+                open("https://www.npmjs.com/~keumasterpiece", "_blank")
+              }
+            >
+              keumasterpiece
+            </span>
           </span>
         </div>
 

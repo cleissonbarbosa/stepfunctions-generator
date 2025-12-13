@@ -76,7 +76,9 @@ const commitDefinition = (params: {
   const { prev, nextDefinition, replaceText, keepText } = params;
 
   const nextHistory: History = {
-    past: [...prev.history.past, safeClone(prev.aslDefinition)].slice(-HISTORY_LIMIT),
+    past: [...prev.history.past, safeClone(prev.aslDefinition)].slice(
+      -HISTORY_LIMIT
+    ),
     future: [],
   };
 
@@ -112,10 +114,13 @@ export const useStore = create<State & { history: History }>()(
       setAslDefinition: (definition) =>
         set((state) =>
           commitDefinition({
-            prev: { aslDefinition: state.aslDefinition, history: state.history },
+            prev: {
+              aslDefinition: state.aslDefinition,
+              history: state.history,
+            },
             nextDefinition: definition,
             replaceText: true,
-          }),
+          })
         ),
       setAslText: (text) => {
         let parseError: string | null = null;
@@ -130,17 +135,24 @@ export const useStore = create<State & { history: History }>()(
         const { aslText } = get();
         try {
           const parsed = JSON.parse(aslText) as unknown;
-          if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+          if (
+            typeof parsed !== "object" ||
+            parsed === null ||
+            Array.isArray(parsed)
+          ) {
             set({ parseError: "ASL must be a JSON object." });
             return;
           }
           set((state) =>
             commitDefinition({
-              prev: { aslDefinition: state.aslDefinition, history: state.history },
+              prev: {
+                aslDefinition: state.aslDefinition,
+                history: state.history,
+              },
               nextDefinition: parsed as object,
               replaceText: false,
               keepText: state.aslText,
-            }),
+            })
           );
         } catch (e) {
           set({ parseError: e instanceof Error ? e.message : "Invalid JSON" });
@@ -149,34 +161,51 @@ export const useStore = create<State & { history: History }>()(
       importAslText: (text) => {
         try {
           const parsed = JSON.parse(text) as unknown;
-          if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+          if (
+            typeof parsed !== "object" ||
+            parsed === null ||
+            Array.isArray(parsed)
+          ) {
             set({ aslText: text, parseError: "ASL must be a JSON object." });
             return;
           }
           set((state) => ({
             ...commitDefinition({
-              prev: { aslDefinition: state.aslDefinition, history: state.history },
+              prev: {
+                aslDefinition: state.aslDefinition,
+                history: state.history,
+              },
               nextDefinition: parsed as object,
               replaceText: true,
             }),
           }));
         } catch (e) {
-          set({ aslText: text, parseError: e instanceof Error ? e.message : "Invalid JSON" });
+          set({
+            aslText: text,
+            parseError: e instanceof Error ? e.message : "Invalid JSON",
+          });
         }
       },
       resetToInitial: () =>
         set((state) =>
           commitDefinition({
-            prev: { aslDefinition: state.aslDefinition, history: state.history },
+            prev: {
+              aslDefinition: state.aslDefinition,
+              history: state.history,
+            },
             nextDefinition: safeClone(initialASL),
             replaceText: true,
-          }),
+          })
         ),
       formatAslText: () => {
         const { aslText } = get();
         try {
           const parsed = JSON.parse(aslText) as unknown;
-          if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+          if (
+            typeof parsed !== "object" ||
+            parsed === null ||
+            Array.isArray(parsed)
+          ) {
             set({ parseError: "ASL must be a JSON object." });
             return;
           }
@@ -192,10 +221,10 @@ export const useStore = create<State & { history: History }>()(
           if (state.history.past.length === 0) return state;
           const previous = state.history.past[state.history.past.length - 1];
           const nextPast = state.history.past.slice(0, -1);
-          const nextFuture = [safeClone(state.aslDefinition), ...state.history.future].slice(
-            0,
-            HISTORY_LIMIT,
-          );
+          const nextFuture = [
+            safeClone(state.aslDefinition),
+            ...state.history.future,
+          ].slice(0, HISTORY_LIMIT);
           const nextHistory: History = { past: nextPast, future: nextFuture };
           return {
             aslDefinition: previous,
@@ -212,9 +241,10 @@ export const useStore = create<State & { history: History }>()(
           if (state.history.future.length === 0) return state;
           const next = state.history.future[0];
           const nextFuture = state.history.future.slice(1);
-          const nextPast = [...state.history.past, safeClone(state.aslDefinition)].slice(
-            -HISTORY_LIMIT,
-          );
+          const nextPast = [
+            ...state.history.past,
+            safeClone(state.aslDefinition),
+          ].slice(-HISTORY_LIMIT);
           const nextHistory: History = { past: nextPast, future: nextFuture };
           return {
             aslDefinition: next,
@@ -237,81 +267,84 @@ export const useStore = create<State & { history: History }>()(
             newDefinition.States = {};
           }
 
-      // Simple logic to add a new state
-      // In a real app, we'd need more complex logic to handle connections
-      let stateDefinition: any = {
-        Type: stateType,
-        End: true,
-      };
+          // Simple logic to add a new state
+          // In a real app, we'd need more complex logic to handle connections
+          let stateDefinition: any = {
+            Type: stateType,
+            End: true,
+          };
 
-      switch (stateType) {
-        case "Wait":
-          stateDefinition = { ...stateDefinition, Seconds: 5 };
-          break;
-        case "Task":
-          stateDefinition = {
-            ...stateDefinition,
-            Resource:
-              "arn:aws:lambda:us-east-1:123456789012:function:MyFunction",
-          };
-          break;
-        case "Choice":
-          stateDefinition = {
-            Type: "Choice",
-            Choices: [
-              {
-                Variable: "$.MyVariable",
-                StringEquals: "MyValue",
-              },
-            ],
-            Default:
-              newDefinition.StartAt || Object.keys(newDefinition.States)[0],
-          };
-          break;
-        case "Fail":
-          stateDefinition = {
-            Type: "Fail",
-            Error: "GenericError",
-            Cause: "An error occurred",
-          };
-          break;
-        case "Parallel":
-          stateDefinition = {
-            ...stateDefinition,
-            Branches: [
-              {
-                StartAt: "ParallelState",
-                States: {
-                  ParallelState: {
-                    Type: "Pass",
-                    End: true,
+          switch (stateType) {
+            case "Wait":
+              stateDefinition = { ...stateDefinition, Seconds: 5 };
+              break;
+            case "Task":
+              stateDefinition = {
+                ...stateDefinition,
+                Resource:
+                  "arn:aws:lambda:us-east-1:123456789012:function:MyFunction",
+              };
+              break;
+            case "Choice":
+              stateDefinition = {
+                Type: "Choice",
+                Choices: [
+                  {
+                    Variable: "$.MyVariable",
+                    StringEquals: "MyValue",
+                  },
+                ],
+                Default:
+                  newDefinition.StartAt || Object.keys(newDefinition.States)[0],
+              };
+              break;
+            case "Fail":
+              stateDefinition = {
+                Type: "Fail",
+                Error: "GenericError",
+                Cause: "An error occurred",
+              };
+              break;
+            case "Parallel":
+              stateDefinition = {
+                ...stateDefinition,
+                Branches: [
+                  {
+                    StartAt: "ParallelState",
+                    States: {
+                      ParallelState: {
+                        Type: "Pass",
+                        End: true,
+                      },
+                    },
+                  },
+                ],
+              };
+              break;
+            case "Map":
+              stateDefinition = {
+                ...stateDefinition,
+                ItemsPath: "$.items",
+                Iterator: {
+                  StartAt: "MapState",
+                  States: {
+                    MapState: {
+                      Type: "Pass",
+                      End: true,
+                    },
                   },
                 },
-              },
-            ],
-          };
-          break;
-        case "Map":
-          stateDefinition = {
-            ...stateDefinition,
-            ItemsPath: "$.items",
-            Iterator: {
-              StartAt: "MapState",
-              States: {
-                MapState: {
-                  Type: "Pass",
-                  End: true,
-                },
-              },
-            },
-          };
-          break;
-      }
+              };
+              break;
+          }
 
-      newDefinition.States[stateName] = stateDefinition;
+          newDefinition.States[stateName] = stateDefinition;
 
           return commitDefinition({
-            prev: { aslDefinition: state.aslDefinition, history: state.history },
+            prev: {
+              aslDefinition: state.aslDefinition,
+              history: state.history,
+            },
             nextDefinition: newDefinition,
             replaceText: true,
           });
@@ -341,6 +374,6 @@ export const useStore = create<State & { history: History }>()(
           state.aslText = JSON.stringify(definition, null, 2);
         }
       },
-    },
-  ),
+    }
+  )
 );

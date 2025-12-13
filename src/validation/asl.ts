@@ -18,7 +18,8 @@ const isObject = (value: unknown): value is JsonObject =>
 
 const isString = (value: unknown): value is string => typeof value === "string";
 
-const isBoolean = (value: unknown): value is boolean => typeof value === "boolean";
+const isBoolean = (value: unknown): value is boolean =>
+  typeof value === "boolean";
 
 const joinPath = (base: string, segment: string) =>
   base ? `${base}.${segment}` : segment;
@@ -26,7 +27,7 @@ const joinPath = (base: string, segment: string) =>
 const addIssue = (
   issues: ValidationIssue[],
   issue: Omit<ValidationIssue, "path"> & { path?: string },
-  defaultPath: string,
+  defaultPath: string
 ) => {
   issues.push({ path: issue.path ?? defaultPath, ...issue });
 };
@@ -42,7 +43,8 @@ const getTransitionsForState = (state: JsonObject): string[] => {
     const choices = state.Choices;
     if (Array.isArray(choices)) {
       for (const choice of choices) {
-        if (isObject(choice) && isString(choice.Next)) transitions.push(choice.Next);
+        if (isObject(choice) && isString(choice.Next))
+          transitions.push(choice.Next);
       }
     }
     const defaultTarget = state.Default;
@@ -90,7 +92,7 @@ const validateStateMachineScope = (params: {
         severity: "error",
         message: "`StartAt` must be a string.",
       },
-      joinPath(scopePath, "StartAt"),
+      joinPath(scopePath, "StartAt")
     );
   }
 
@@ -101,7 +103,7 @@ const validateStateMachineScope = (params: {
         severity: "error",
         message: "`States` must be an object.",
       },
-      joinPath(scopePath, "States"),
+      joinPath(scopePath, "States")
     );
     return;
   }
@@ -115,7 +117,7 @@ const validateStateMachineScope = (params: {
         severity: "error",
         message: `StartAt points to a missing state: ${startAt}.`,
       },
-      joinPath(scopePath, "StartAt"),
+      joinPath(scopePath, "StartAt")
     );
   }
 
@@ -130,7 +132,7 @@ const validateStateMachineScope = (params: {
           message: "State definition must be an object.",
           stateName,
         },
-        statePath,
+        statePath
       );
       continue;
     }
@@ -146,7 +148,7 @@ const validateStateMachineScope = (params: {
           message: "State is missing a valid `Type`.",
           stateName,
         },
-        joinPath(statePath, "Type"),
+        joinPath(statePath, "Type")
       );
       continue;
     }
@@ -159,10 +161,11 @@ const validateStateMachineScope = (params: {
         issues,
         {
           severity: "error",
-          message: "A state cannot have `Next` and `End: true` at the same time.",
+          message:
+            "A state cannot have `Next` and `End: true` at the same time.",
           stateName,
         },
-        statePath,
+        statePath
       );
     }
 
@@ -176,7 +179,7 @@ const validateStateMachineScope = (params: {
           message: "State must have `Next` or `End: true`.",
           stateName,
         },
-        statePath,
+        statePath
       );
     }
 
@@ -185,10 +188,12 @@ const validateStateMachineScope = (params: {
         issues,
         {
           severity: "warning",
-          message: `States of type ${stateType} typically do not use ` + "`Next`/`End`. ",
+          message:
+            `States of type ${stateType} typically do not use ` +
+            "`Next`/`End`. ",
           stateName,
         },
-        statePath,
+        statePath
       );
     }
 
@@ -202,7 +207,7 @@ const validateStateMachineScope = (params: {
             message: "Choice must have a non-empty `Choices` array.",
             stateName,
           },
-          joinPath(statePath, "Choices"),
+          joinPath(statePath, "Choices")
         );
       } else {
         choices.forEach((choice, idx) => {
@@ -215,7 +220,7 @@ const validateStateMachineScope = (params: {
                 message: "Each item in `Choices` must be an object.",
                 stateName,
               },
-              choicePath,
+              choicePath
             );
             return;
           }
@@ -227,7 +232,7 @@ const validateStateMachineScope = (params: {
                 message: "Each Choice must have `Next`.",
                 stateName,
               },
-              joinPath(choicePath, "Next"),
+              joinPath(choicePath, "Next")
             );
           }
         });
@@ -241,7 +246,7 @@ const validateStateMachineScope = (params: {
             message: "Choice does not support `End`. ",
             stateName,
           },
-          joinPath(statePath, "End"),
+          joinPath(statePath, "End")
         );
       }
 
@@ -250,10 +255,11 @@ const validateStateMachineScope = (params: {
           issues,
           {
             severity: "error",
-            message: "Choice does not support `Next`; use `Default` and `Choices[].Next`.",
+            message:
+              "Choice does not support `Next`; use `Default` and `Choices[].Next`.",
             stateName,
           },
-          joinPath(statePath, "Next"),
+          joinPath(statePath, "Next")
         );
       }
     }
@@ -268,7 +274,7 @@ const validateStateMachineScope = (params: {
             message: "Parallel must have a non-empty `Branches` array.",
             stateName,
           },
-          joinPath(statePath, "Branches"),
+          joinPath(statePath, "Branches")
         );
       } else {
         branches.forEach((branch, idx) => {
@@ -281,7 +287,7 @@ const validateStateMachineScope = (params: {
                 message: "Each branch must be an object.",
                 stateName,
               },
-              branchPath,
+              branchPath
             );
             return;
           }
@@ -304,7 +310,7 @@ const validateStateMachineScope = (params: {
             message: "Map must have an `Iterator` object.",
             stateName,
           },
-          joinPath(statePath, "Iterator"),
+          joinPath(statePath, "Iterator")
         );
       } else {
         validateStateMachineScope({
@@ -323,11 +329,15 @@ const validateStateMachineScope = (params: {
           message: `Next points to a missing state: ${state.Next}.`,
           stateName,
         },
-        joinPath(statePath, "Next"),
+        joinPath(statePath, "Next")
       );
     }
 
-    if (stateType === "Choice" && isString(state.Default) && !stateNames.has(state.Default)) {
+    if (
+      stateType === "Choice" &&
+      isString(state.Default) &&
+      !stateNames.has(state.Default)
+    ) {
       addIssue(
         issues,
         {
@@ -335,7 +345,7 @@ const validateStateMachineScope = (params: {
           message: `Default points to a missing state: ${state.Default}.`,
           stateName,
         },
-        joinPath(statePath, "Default"),
+        joinPath(statePath, "Default")
       );
     }
 
@@ -350,7 +360,7 @@ const validateStateMachineScope = (params: {
               message: `Choices[${idx}].Next points to a missing state: ${choice.Next}.`,
               stateName,
             },
-            `${joinPath(statePath, "Choices")}[${idx}].Next`,
+            `${joinPath(statePath, "Choices")}[${idx}].Next`
           );
         }
       });
@@ -385,7 +395,7 @@ const validateStateMachineScope = (params: {
             message: "State is not reachable from `StartAt`. ",
             stateName,
           },
-          joinPath(joinPath(scopePath, "States"), stateName),
+          joinPath(joinPath(scopePath, "States"), stateName)
         );
       }
     }
@@ -402,7 +412,7 @@ export const validateAsl = (definition: unknown): ValidationResult => {
         severity: "error",
         message: "ASL must be a JSON object.",
       },
-      "<root>",
+      "<root>"
     );
     return { issues };
   }

@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState, type ChangeEventHandler } from "react";
-import { Download, Settings, Bolt, Copy, Upload, Undo2, Redo2, RotateCcw } from "lucide-react";
+import {
+  Download,
+  Settings,
+  Bolt,
+  Copy,
+  Upload,
+  Undo2,
+  Redo2,
+  RotateCcw,
+} from "lucide-react";
 import { useStore } from "../store/useStore";
 import { SettingsModal } from "./SettingsModal";
 
@@ -113,7 +122,10 @@ export const Header = () => {
           <button
             onClick={undo}
             className="btn-ghost"
-            style={{ cursor: canUndo ? "pointer" : "not-allowed", opacity: canUndo ? 1 : 0.45 }}
+            style={{
+              cursor: canUndo ? "pointer" : "not-allowed",
+              opacity: canUndo ? 1 : 0.45,
+            }}
             title="Undo (Ctrl/Cmd+Z)"
             disabled={!canUndo}
           >
@@ -122,7 +134,10 @@ export const Header = () => {
           <button
             onClick={redo}
             className="btn-ghost"
-            style={{ cursor: canRedo ? "pointer" : "not-allowed", opacity: canRedo ? 1 : 0.45 }}
+            style={{
+              cursor: canRedo ? "pointer" : "not-allowed",
+              opacity: canRedo ? 1 : 0.45,
+            }}
             title="Redo (Ctrl+Y / Shift+Ctrl/Cmd+Z)"
             disabled={!canRedo}
           >
@@ -148,7 +163,7 @@ export const Header = () => {
           <button
             onClick={() => {
               const ok = window.confirm(
-                "Reset to the initial example? This will overwrite the current workflow.",
+                "Reset to the initial example? This will overwrite the current workflow."
               );
               if (ok) resetToInitial();
             }}
